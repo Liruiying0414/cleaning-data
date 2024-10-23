@@ -1,0 +1,201 @@
+---
+title: "Analysing how health and lifestyle factors effect individual Income level"
+author: "Ruiying Li & Lorina Yang"
+date: "2024/10/03"
+output: 
+  pdf_document:
+    latex_engine: xelatex  
+subtitle: "Including BMI, Sleep hours, depression degree, year of drinking alcohol, and age"
+bibliography: references.bib
+thanks: "Cleaning data resources available at https://github.com/Liruiying0414/cleaning-data "
+---
+
+```{r,message=FALSE,echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(lubridate)
+data <- read.csv("analysis_data.csv")
+
+```
+
+
+# Contribution
+Name: Hanqing(Lorina) Yang
+Contribution: responsible for writing introduction, ethics discussion and part of preliminary result evaluation.
+Name: Ruiying Li
+Contribution: responsible for writing data description, coding part and evaluating model result.
+
+
+# Introduction
+Household income plays a central role in shaping an individual’s quality of life, purchasing power, and ability to achieve personal and professional goals. Simultaneously, health factors such as obesity, depression, alcohol consumption, and sleep patterns have significant impacts on both physical well-being and economic outcomes. The aim of this study is to investigate whether a linear relationship exists between the household income-poverty index and predictors such as BMI, depression levels, alcohol consumption, sleep hours, and age.
+ 
+By analyzing these variables, we want to explore how personal health and lifestyle factors influence household income-poverty status. It is important because the findings could help guide policies addressing income-related health disparities, and create more targeted interventions, such as mental health support or obesity prevention programs, which may reduce healthcare costs and improve overall economic productivity.
+ 
+The relationship between income and health has been widely studied. For example, a meta-analysis by Kim, T.J. found that lower income is strongly associated with subsequent obesity across Canada, the USA, and the UK, highlighting the link between financial status and health outcomes. Another study by Ridley et al. (2020) emphasized the bidirectional relationship between income and mental health, showing that mental illness can reduce employment and income, while financial hardships exacerbate mental health conditions like depression and anxiety. This underscores the importance of economic stability in maintaining mental well-being. Similarly, research on alcohol consumption by Cerdá, M. (2011) found that lower income is associated with both higher odds of abstinence and heavy drinking, compared to moderate drinking.
+ 
+Given these findings, this study seeks to determine whether there is a linear relationship between household income-poverty ratio and health-related predictors. Linear regression is an appropriate tool for 2 reasons. First, it is effective in identifying trends and associations of the continuous responses variable and allows us to quantify the relationship between the income-poverty index (the dependent variable) and multiple predictors. Second, it also allows for the inclusion of multiple variables simultaneously, enabling control for confounding factors like age or alcohol consumption, which ensures more accurate and reliable results.
+
+
+# Data Description{#sec-mydatasection}
+The data set used in the proposal was founded in US governmental website called 'National Center for health statistics'[@rNationalcenter] as an open data resources, and author who arrange data set called Randall Pruim, and the data set was collected by Michelle Dalrymple of Cashmere High School and Chris Wild of the University of Auckland, for use in teaching statistics, the collection methods were multiple,for the proposal data set, it is mainly concentrated on health screenings and self-reported surveys.
+
+The origin data set contains 75 variables from sample year 2009 to 2012, concluding 10000 observations after re-sampling,including demographic variables such as Survey year, age, gender, race, Physical measurement like BMI, weight, Height, Health variables like Depressed, Diabetes, and Lifestyle variables like general health condition, number of drinking alcohol year etc. The original purpose for the data set was to examine the health and nutrition information for different races in the US, for an education purpose.
+
+In this proposal,only 6 variables be selected, which is Age,Poverty,Depressed,Sleeping hours,BMI and alcohol year.
+
+This proposal indicates Poverty as response, because it is a continuous variable that meets the requirement for building a linear regression model, and it represents a annual ratio of family income to poverty guidelines in percentage,smaller numbers indicate more poverty,and rest of 5 variables are predictors,exploring the linear relations between poverty level and these health and lifestyle factors.
+
+**BMI**: A numeric variable represents Body mass index (weight/height2 in kg/m2),for participants aged over 18, measure obesity in our research question.
+
+**Age**: A numeric variable indicates age in years at screening of study participant who over 18
+
+**Depressed**: A categorical variable indicates self-reported number of days where participant who aged over 18 felt down, depressed or hopeless. (One of None, Several, Majority (more than
+half the days), or Almost All)
+
+**SleepHrsNight**: A numeric variable represents self-reported number of hours study participant aged over 18 usually gets at night on weekdays or workdays.
+
+**AlcoholYear**: A numeric variable represents estimated number of days over the past year that participant aged over 18 drank alcoholic beverages
+
+Those predictors assign numerical and categorical value for measure the health factors we intend to investigate, including obesity measure index BMI, age, depressed level, sleep hour and alcohol drinking days per years. 
+
+Here is the brief data set for proposal：
+```{r,message=FALSE,echo=FALSE}
+head(data)
+```
+
+```{r,fig.height=3.5, fig.width=8,message=FALSE,echo=FALSE}
+
+par(mfrow=c(1,2))
+group_data <- list(poverty = data$Poverty, Age = data$Age , Sleephours = data$SleepHrsNight, BMI = data$BMI)
+boxplot(group_data,main="Boxplot of variables")
+boxplot(data$AlcoholYear, main="Boxplot of Alcohol year")
+```
+
+Through cleaning data,we found there is several missing values in variables Poverty, Depressed,and Sleep Hours.After building box plot, we found there are no outlier in general, except for variable BMI and Alcohol year, this is because many participants did not drink alcohol during observated year, while there still exist a group of participant strongly addicted with Alcohol, almost drinking everyday. Apart from outliers,we discover variable Alcohol year shows an strong trend of right skewness, while other shows nearly symmetric shape.
+
+## Multiple linear model for poverty level
+```{r,fig.height=3.5, fig.width=3.5,message=FALSE,echo=FALSE}
+income_model <- lm(Poverty ~ BMI + Age + Depressed + SleepHrsNight + AlcoholYear, data = data )
+summary(income_model)
+```
+For individuals in the "Most" depressed group, when BMI, Age, Sleep Hours, and Alcohol consumption are all zero, the average poverty index is 1.1575255.
+In this "Most" depressed group, holding all else constant:
+
+Each one-unit increase in BMI is linked to a 0.0076651 decrease in the poverty index.
+
+Each additional year of age is associated with a 0.0157945 increase in the poverty index.
+
+Each extra hour of sleep per night increases the poverty index by 0.0777272.
+
+Each additional unit of annual alcohol consumption increases the poverty index by 0.0020881.
+
+Compared to the "Most" depressed group:
+ The "Several" depressed group has a poverty index that is, on average, 0.3731257 higher.
+ 
+ The "None" depressed group has a poverty index that is 0.8347178 higher.
+
+
+# Ethics Discussion
+The dataset consisting of 20,293 observations on health factors and background, is considered trustworthy. It was collected by the U.S. National Center for Health Statistics, a credible source, along with widespread use and popularity ensure the reliability. However, ethical concerns remain, particularly regarding privacy and the impact on vulnerable groups.
+One issue is how statistical analysis could affect groups of stakeholders like the obese or low-income populations, potentially leading to discrimination and policy changes. Another issue is that some questions in the survey appear to be offensive and sensitive such as asking number of sex partners, however it is not that problematic since confidentiality and consent is be taken.
+Despite these concerns, the data set has been anonymized as each participant were given an ID instead of using real names, addressing confidentiality and privacy. Moreover, since the data was collected through a survey, which ensure the participants are volunteered to participate the study, and the questions design was obvious for participants to understand the aim of the survey, ensuring informed consent was obtained.
+
+
+# Preliminary Model Results 
+## check linear regression condition 1
+```{r,fig.height=3.5, fig.width=3.5,message=FALSE,echo=FALSE}
+y_value <- resid(income_model)
+x_value <- fitted(income_model)
+
+#check condition 1 for linear model
+response <- data$Poverty
+plot(x = x_value, y = response, main="Response vs fitted", xlab="Fitted",
+   ylab=" Household Income")
+abline(a = 0 ,b = 1, lty=2,col = "red")
+```
+
+The plot about check condition 1 "Conditional mean response condition" for Multiple Linear Model. The condition 1 hold since the response-fitted plot show some easily identifiable non-linear pattern, indicate the mean responses "poverty" are a single function of a linear combination involving Beta parameter.
+
+
+
+## check condition 2
+```{r,fig.height=6, fig.width=6,message=FALSE,echo=FALSE}
+data$Depressed <- as.numeric(factor(data$Depressed))
+pairs(data[,3:7])
+```
+
+The pairwise scatterplots of predictors above check the condition 2 "Conditional mean predictor condition". The condition 2 hold since there is no curve and show non-linear pattern.Thus, the mean of each predictor is related to each other predictor in no more complicated way than linearly.
+
+
+## Residual vs fitted
+```{r,fig.height=3.5, fig.width=3.5,message=FALSE,echo=FALSE}
+plot(x = x_value, y = y_value, main="Residual vs Fitted", xlab="Fitted",
+   ylab="Residuals")
+```
+
+The Residual-Fitted plot violate linearity assumption because there exists a non-random pattern.
+
+
+## residual vs numeric predictors
+```{r,fig.height=3,fig.width=8,message=FALSE,echo=FALSE}
+par(mfrow=c(1,4))
+plot(x = data$Age, y = y_value, main="Residual vs Age",
+    xlab="Age", ylab="Residual")
+plot(x = data$SleepHrsNight, y = y_value, main="Residual vs Sleep hours at night",
+    xlab="Sleep hours", ylab="Residual")
+plot(x = data$BMI, y = y_value, main="Residual vs BMI",
+    xlab="BMI", ylab="Residual")
+plot(x = data$AlcoholYear, y = y_value, main = "Residual vs Drinking alcohol year", xlab = "Alcohol year", ylab = "Residual" )
+```
+The residual-predictor plot show a random pattern, thus not violate any assumptions.
+
+
+## Residual vs categorical predictors
+```{r,fig.height=3, fig.width=8,message=FALSE,echo=FALSE}
+par(mfrow=c(1,3))
+boxplot(y_value ~ data$Depressed,main="Residual vs Depression degree",
+    xlab="Depressed", ylab="Residual")
+```
+
+The Residual-Depressed predictor plot violates constant variance slightly, when looking at its boxplot for several depressed group compared to other two,the box is not in the same size.
+
+
+
+## use qqplot to check normality
+```{r,fig.height=3, fig.width=8,message=FALSE,echo=FALSE}
+qqnorm(y_value)
+qqline(y_value)
+```
+From its qqplot of residual vs fitted, we could tell it also hold normality assumption, because its data points are close to the straight line in general and only few of them spread out.
+
+
+\newpage
+# Result summary
+The linear regression sample in the proposal shows an random pattern in general,where 2 conditions and three assumptions are hold,except for some specific variables such as the boxplot for depressed level, which violates the constant variance assumption, and the residual vs fitted plot does not match the linearity assumption perfectly.
+
+According to the linear regression model,The residual-fitted plot, residual-predictors plot, and QQ plot suggest that the multiple linear regression model is an appropriate tool for analyzing the relationship between poverty (measured by the income-poverty ratio) and predictors such as age, BMI, depression level, sleep hours, and alcohol consumption. However, some minor violations of linearity and constant variance assumptions were observed.
+
+The results show a negative relationship between the income-poverty ratio and BMI (coefficient = -0.0077), supporting previous studies conducted by Kim, T.J.'s which indicated that individuals with higher BMI are more likely to live in poverty, notice lower income-poverty ratio implies higher poverty.
+
+Interestingly, the model shows a positive relationship between alcohol consumption (measured by drinking days per year) and income-poverty ratio, suggesting that lower alcohol use is associated with higher poverty. This finding contradicts Cerdá, M.'s study, which found lower income linked to heavy drinking. However, this discrepancy may be due to other factors, as Cerdá’s highlighted the association between lifetime income patterns and alcohol use decreased once we controlled for past-year income, education and occupation.
+
+Additionally, the results show that individuals with higher depression levels are more likely to experience poverty, aligning with previous literature that links mental illness to reduced employment and income.
+
+Other predictors, such as age and sleep hours, also show a positive relationship with the income-poverty ratio. Older individuals tend to have higher incomes, likely due to greater work experience, while those who sleep more are associated with healthier lifestyles, which may contribute to higher income and reduced poverty.
+
+
+  
+
+\newpage
+
+# References
+@rNationalcenter
+@citeR
+@rTidyverse
+@rNHANES
+@rPeer
+@rPoverty
+
+Cerdá, M., Johnson-Lawrence, V. D., & Galea, S. (2011). Lifetime income patterns and alcohol consumption: investigating the association between long- and short-term income trajectories and drinking. Social science & medicine (1982), 73(8), 1178–1185. https://doi.org/10.1016/j.socscimed.2011.07.025
+
